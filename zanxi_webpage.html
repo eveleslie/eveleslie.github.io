@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zanxi Ruan | 阮瓒茜</title>
+
+<link rel="icon" href="images/zr-logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6c5ce7; /* 柔和的紫色 */
+  --bg: #fffdfa;      /* 暖白色背景 */
+  --text: #2d3436;
+  --mute: #636e72;
+  --accent-pink: #ff7675;
+  --accent-blue: #74b9ff;
+  --card-bg: #ffffff;
+  --border-radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  font-family: 'Quicksand', 'Noto Sans SC', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container { max-width: 850px; margin: 0 auto; padding: 40px 20px; }
+
+/* 导航栏 - 更加灵动 */
+nav { display: flex; justify-content: flex-end; gap: 20px; margin-bottom: 60px; }
+nav a { 
+  text-decoration: none; color: var(--text); font-weight: 600; font-size: 15px;
+  padding: 6px 12px; border-radius: 20px; transition: all 0.3s;
+}
+nav a:hover { background: #f1f2f6; color: var(--primary); }
+
+/* Hero 区域 - 可爱感核心 */
+.hero { display: flex; align-items: center; gap: 40px; margin-bottom: 50px; }
+.avatar-wrap { position: relative; }
+.avatar { 
+  width: 160px; height: 160px; border-radius: 50%; border: 4px solid white;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05); background: #dfe6e9;
+  display: flex; align-items: center; justify-content: center; font-size: 50px;
+  object-fit: cover;
+}
+/* 装饰用的小圆圈 */
+.avatar-wrap::after {
+  content: '✨'; position: absolute; bottom: 10px; right: 10px; font-size: 24px;
+}
+
+.hero-info h1 { font-size: 42px; color: var(--text); margin-bottom: 5px; }
+.hero-info .chinese { font-size: 20px; color: var(--mute); font-weight: 500; margin-bottom: 15px; }
+.hero-info .bio { font-size: 16px; margin-bottom: 20px; }
+.hero-info .links a { 
+  margin-right: 15px; text-decoration: none; color: var(--primary); font-weight: 600; font-size: 14px;
+}
+
+/* News 列表 - 参考截图 */
+.section-title { font-size: 28px; font-weight: 700; margin-bottom: 25px; color: var(--text); }
+.news-list { list-style: none; margin-bottom: 50px; }
+.news-item { display: flex; gap: 30px; margin-bottom: 12px; font-size: 15px; align-items: baseline; }
+.news-date { font-weight: 700; min-width: 100px; color: var(--text); }
+.news-content { color: var(--mute); }
+
+/* 论文列表 - 完全参考截图样式 */
+.pub-card { 
+  display: flex; gap: 25px; margin-bottom: 35px; align-items: flex-start;
+  padding: 10px; transition: transform 0.2s;
+}
+.pub-card:hover { transform: translateX(5px); }
+.pub-thumb { 
+  width: 180px; flex-shrink: 0; border: 1px solid #eee; border-radius: 4px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+}
+.pub-info h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: #111; line-height: 1.3; }
+.pub-authors { font-size: 14px; color: #555; margin-bottom: 5px; }
+.pub-authors strong { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+.pub-venue { font-size: 14px; color: var(--mute); font-style: italic; margin-bottom: 12px; }
+
+/* 按钮样式 - 参考截图 ABS/BIB/HTML/PDF */
+.pub-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  padding: 4px 12px; font-size: 11px; font-weight: 600; border: 1.5px solid #333;
+  border-radius: 4px; text-decoration: none; color: #333; text-transform: uppercase;
+  transition: all 0.2s;
+}
+.btn:hover { background: #333; color: white; }
+
+/* ===== 新增：给 pbtn（你第二套 publication 使用）补样式 ===== */
+.pbtn {
+  padding: 4px 12px; font-size: 11px; font-weight: 600; border: 1.5px solid #333;
+  border-radius: 4px; text-decoration: none; color: #333; text-transform: uppercase;
+  transition: all 0.2s; display: inline-block;
+}
+.pbtn:hover { background: #333; color: white; }
+
+/* ===== 新增：ABS / BIB 展开框样式 ===== */
+.pub-expand {
+  display: none;
+  margin-top: 12px;
+  padding: 14px;
+  background: #f6f7fb;
+  border-left: 3px solid var(--primary);
+  border-radius: 6px;
+  font-size: 14px;
+  color: #444;
+  animation: fadeIn 0.22s ease;
+}
+
+.pub-expand pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.pub-expand .expand-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.pub-expand p { margin: 0; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 可选：按钮激活态（点击 ABS/BIB 时） */
+.btn.active, .pbtn.active {
+  background: #333;
+  color: #fff;
+}
+
+/* ===== 你新 publication 区块里用到但原 CSS 未定义的类（仅补样式，不改内容） ===== */
+.sec { margin-bottom: 50px; }
+.sec-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.sec-num { font-weight: 700; color: var(--primary); font-size: 14px; }
+.sec-hd h2 { font-size: 28px; margin: 0; }
+
+.pub-list { display: grid; gap: 20px; }
+.pub-item {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 14px;
+}
+.pub-item .pub-thumb {
+  width: 180px;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+.pub-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--mute);
+}
+.pub-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: zoom-in;
+  transition: transform 0.2s;
+}
+
+.pub-thumb img:hover {
+  transform: scale(1.03);
+}
+.pt-icon { font-size: 24px; }
+.pt-label { font-size: 12px; }
+.pub-body { flex: 1; min-width: 0; }
+.pub-title { font-size: 17px; font-weight: 600; line-height: 1.35; margin-bottom: 6px; color: #111; }
+.pub-item .pub-authors { margin-bottom: 5px; }
+.pub-item .pub-venue { margin-bottom: 8px; }
+.pub-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.ptag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+}
+.ptag-accept { color: #b23a48; background: #fff1f2; border-color: #ffd6dc; }
+.ptag-conf   { color: #22577a; background: #eef6ff; border-color: #d5e8ff; }
+.ptag-q1     { color: #2b9348; background: #eefbf1; border-color: #d4f4dc; }
+
+/* ── Contact 区域 ── */
+#contact {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid #eee;
+}
+.contact-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1.5px solid #eee;
+  border-radius: 14px;
+  padding: 18px 28px;
+  box-shadow: 0 4px 16px rgba(108,92,231,0.07);
+  transition: box-shadow 0.25s, border-color 0.25s;
+}
+.contact-card:hover {
+  box-shadow: 0 8px 28px rgba(108,92,231,0.14);
+  border-color: var(--primary);
+}
+.contact-icon {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.contact-text { display: flex; flex-direction: column; gap: 2px; }
+.contact-label { font-size: 11px; font-weight: 700; color: var(--mute); text-transform: uppercase; letter-spacing: 0.06em; }
+.contact-email {
+  font-size: 16px; font-weight: 600; color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.contact-email:hover { color: #4834d4; text-decoration: underline; text-underline-offset: 3px; }
+
+footer { margin-top: 80px; padding: 40px 0; border-top: 1px solid #eee; color: var(--mute); text-align: center; font-size: 14px; }
+
+@media (max-width: 700px) {
+  .hero { flex-direction: column; text-align: center; }
+  .pub-card { flex-direction: column; }
+  .pub-thumb { width: 100%; }
+  .pub-item { flex-direction: column; }
+  .pub-item .pub-thumb { width: 100%; }
+}
+/* 放大背景层 */
+.image-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* 放大图片 */
+.image-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  cursor: zoom-out;
+  animation: zoomIn 0.2s ease;
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#news">News</a>
+    <a href="#publications">Publications</a>
+    <a href="mailto:zanxi.ruan@univr.it" class="contact-email">Contact</a>
+  </nav>
+
+  <div class="hero" id="home">
+<div class="avatar-wrap">
+  <img src="images/zanxi-id.png" class="avatar" alt="Zanxi Ruan">
+</div>
+    <div class="hero-info">
+      <h1>Zanxi Ruan</h1>
+      <div class="chinese">阮瓒茜</div>
+<p class="bio">
+        Hi, I am Zanxi! I'm a 2nd year PhD Candidate at <strong>University of Verona</strong> 🇮🇹 <br>
+        I am incredibly lucky to be supervised by 
+        <a href="https://scholar.google.com/citations?user=LbgTPRwAAAAJ" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">Prof. Marco Cristani</a> 
+        and 
+        <a href="https://www.yimingwang.me/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">Dr. Yiming Wang</a>. <br><br>
+        My research hearts 🤍 lie in <strong>multimodal learning</strong> and <strong>information imbalance</strong> in large model training. 
+        Previously, I earned my M.Sc. from NUDT and B.Sc. (Ranked 1st/70) from NCUT. 
+      </p>
+<div class="links">
+  <a href="https://scholar.google.com/citations?user=7AvfV7gAAAAJ&hl=en"
+     target="_blank" rel="noopener noreferrer">
+     Google Scholar
+  </a>
+
+  <a href="https://github.com/eveleslie?tab=repositories"
+     target="_blank" rel="noopener noreferrer">
+     GitHub
+  </a>
+</div>
+    </div>
+  </div>
+
+  <section id="news">
+    <h2 class="section-title">News</h2>
+    <ul class="news-list">
+<li class="news-item">
+      <span class="news-date">Feb 21, 2026</span>
+       <span class="news-content">
+          🎉 Thrilled to share that our latest work 
+          <a href="https://eveleslie.github.io/struxlip-web/" target="_blank" class="news-paper-link">
+            <strong style="font-size: 1.1em; letter-spacing: -0.02em;">
+              <span style="color: #2a5c8a;">Stru</span><span style="color: #e056fd;">XLIP</span>: 
+              Enhancing Vision-Language Models with Multimodal Structural Cues
+            </strong>
+          </a>
+          has been accepted to <strong>CVPR 2026</strong>! 
+          Huge thanks to my shero and hero 
+          <a href="https://www.yimingwang.me/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">Yiming</a> and 
+          <a href="https://scholar.google.com/citations?user=LbgTPRwAAAAJ" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">Marco</a>. 
+          
+        </span>
+    </li>
+      <li class="news-item">
+        <span class="news-date">Feb, 2026</span>
+         <span class="news-content">🎉 Paper accepted at <strong>ICLR 2026</strong>: "Learning to Solve Orienteering Problem with Time Windows and Variable Profits,” International Conference on Learning Representations". Congratulations to <a href="https://swongao.github.io/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">Songqun</a>!</span>
+      </li>
+      <li class="news-item">
+        <span class="news-date">Jun, 2025</span>
+         <span class="news-content">🎉 Paper accepted at <strong>ICCV 2025</strong>: "LOTS of Fashion! Multi-conditioning for Image Generation via Sketch-Text Pairing". Congratulations to <a href="https://federicogirella.github.io/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">Federico</a>!</span>
+      </li>
+      <li class="news-item">
+  <span class="news-date">Jun, 2025</span>
+  <span class="news-content">
+    🎉 My final master's research "<strong>Few-shot event-based action recognition</strong>" has been accepted by <strong>Neural Networks</strong>! 
+    This work marks a nice conclusion to my M.Sc. journey. 
+  </span>
+</li>
+    </ul>
+  </section>
+
+<!-- PUBLICATIONS -->
+<div class="sec" id="publications">
+  <div class="sec-hd"><h2>Selected Publications</h2></div>
+  <div class="pub-list">
+        <!-- CVPR 2026 -->
+    <div class="pub-item">
+<div class="pub-thumb">
+  <img src="images/struxlip-main.png" alt="Decost">
+</div>
+      <div class="pub-body">
+        <div class="pub-title">StruXLIP: Enhancing Vision-Language Models with Multimodal Structural Cues</div>
+        <div class="pub-authors"><strong>Z. Ruan</strong>, Q. Kong, S. GAO, Y. Wang, M. Cristani</div>
+        <div class="pub-venue"><span class="conf">CVPR 2026</span> — The IEEE/CVF Conference on Computer Vision and Pattern Recognition 2026</div>
+        <div class="pub-tags">
+          <span class="ptag ptag-conf">CVPR</span>
+        </div>
+        <div class="pub-btns">
+          <a href="#" class="pbtn">ABS</a>
+          <a href="#" class="pbtn">BIB</a>
+          <a href="https://eveleslie.github.io/struxlip-web/" target="_blank" class="btn">HTML</a>
+          <a href="https://openreview.net/forum?id=koIbbsfKSf" target="_blank" class="btn">PDF</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ICLR 2026 -->
+    <div class="pub-item">
+<div class="pub-thumb">
+  <img src="images/DECOST.png" alt="Decost">
+</div>
+      <div class="pub-body">
+        <div class="pub-title">Learning to Solve Orienteering Problem with Time Windows and Variable Profits</div>
+        <div class="pub-authors">S. Gao, <strong>Z. Ruan</strong>, P. Floor, M. Roveri, L. Palopoli, D. Fontanelli</div>
+        <div class="pub-venue"><span class="conf">ICLR 2026</span> — The Fourteenth International Conference on Learning Representations</div>
+        <div class="pub-tags">
+          <span class="ptag ptag-conf">ICLR</span>
+        </div>
+        <div class="pub-btns">
+          <a href="#" class="pbtn">ABS</a>
+          <a href="#" class="pbtn">BIB</a>
+          <a href="https://swongao.github.io/DeCoST_iclr2026/" target="_blank" class="btn">HTML</a>
+          <a href="https://openreview.net/forum?id=koIbbsfKSf" target="_blank" class="btn">PDF</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CVPR 2026 -->
+    <div class="pub-item">
+<div class="pub-thumb">
+  <img src="images/lost.png" alt="LOTS of Fashion">
+</div>
+      <div class="pub-body">
+        <div class="pub-title">LOTS of Fashion! Multi-conditioning for Image Generation via Sketch-Text Pairing</div>
+        <div class="pub-authors">F. Girella, D. Talon, Z. Liu, <strong>Z. Ruan</strong>, Y. Wang, M. Cristani</div>
+        <div class="pub-venue"><span class="conf">ICCV 2025 (Oral)</span> — Proceedings of The IEEE/CVF International Conference on Computer Vision</div>
+        <div class="pub-tags">
+          <span class="ptag ptag-conf">ICCV</span>
+        </div>
+        <div class="pub-btns">
+          <a href="#" class="pbtn">ABS</a>
+          <a href="#" class="pbtn">BIB</a>
+          <a href="https://intelligolabs.github.io/lots/" target="_blank" class="btn">HTML</a>
+          <a href="http://arxiv.org/abs/2507.22627" target="_blank" class="btn">PDF</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Neural Networks 2025 -->
+    <div class="pub-item">
+<div class="pub-thumb">
+  <img src="images/event-based.jpg" alt="Few-shot Event-based Action Recognition">
+</div>
+      <div class="pub-body">
+        <div class="pub-title">Few-shot Event-based Action Recognition</div>
+        <div class="pub-authors"><strong>Z. Ruan</strong>, N. Pu, J. Chen, S. Gao, Y. Guo, Q. Kong, Y. Xie, Y. Wei</div>
+        <div class="pub-venue"><span class="conf">Neural Networks</span>, 191, 107750, 2025</div>
+        <div class="pub-tags">
+          <span class="ptag ptag-q1">JCR Q1</span>
+        </div>
+        <div class="pub-btns">
+          <a href="#" class="pbtn">ABS</a>
+          <a href="#" class="pbtn">BIB</a>
+          <a href="https://www.sciencedirect.com/science/article/pii/S0893608025006306" target="_blank" class="pbtn">PDF</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACM MM 2024 -->
+    <div class="pub-item">
+<div class="pub-thumb">
+  <img src="images/dual.png" alt="Dual-branch Fusion">
+</div>
+      <div class="pub-body">
+        <div class="pub-title">Dual-branch Fusion with Style Modulation for Cross-domain Few-shot Semantic Segmentation</div>
+        <div class="pub-authors">Q. Kong, J. Chen, J. Jiang, <strong>Z. Ruan</strong>, L. Kang</div>
+        <div class="pub-venue"><span class="conf">ACM Multimedia 2024</span> — Proceedings of the 32nd ACM International Conference on Multimedia</div>
+        <div class="pub-tags">
+          <span class="ptag ptag-conf">ACM MM</span>
+        </div>
+        <div class="pub-btns">
+          <a href="#" class="pbtn">ABS</a>
+          <a href="#" class="pbtn">BIB</a>
+          <a href="https://dl.acm.org/doi/10.1145/3664647.3681667" target="_blank" class="pbtn">PDF</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complex & Intelligent Systems 2024 -->
+    <div class="pub-item">
+      <div class="pub-thumb">
+<div class="pub-thumb">
+  <img src="images/hybrid.webp" alt="Hybrid Attentive Prototypical Network">
+</div>
+      </div>
+      <div class="pub-body">
+        <div class="pub-title">Hybrid Attentive Prototypical Network for Few-shot Action Recognition</div>
+        <div class="pub-authors"><strong>Z. Ruan</strong>, Y. Wei, Y. Guo, Y. Xie</div>
+        <div class="pub-venue"><span class="conf">Complex &amp; Intelligent Systems</span>, 10 (6), 8249–8272, 2024</div>
+        <div class="pub-tags">
+          <span class="ptag ptag-q1">JCR Q1</span>
+        </div>
+        <div class="pub-btns">
+          <a href="#" class="pbtn">ABS</a>
+          <a href="#" class="pbtn">BIB</a>
+          <a href="https://link.springer.com/article/10.1007/s40747-024-01571-4" target="_blank"class="pbtn">PDF</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+  <footer>
+    <p>Last updated: Feb 2026.</p>
+  </footer>
+</div>
+<div class="image-modal" id="imageModal">
+  <img id="modalImg">
+</div>
+<!-- ===== 新增：ABS / BIB 交互脚本（不改原 HTML 按钮内容） ===== -->
+<script>
+(function () {
+  // 你可以只在这里维护每篇论文的 ABS / BIB 内容
+  const paperData = {
+          "StruXLIP: Enhancing Vision-Language Models with Multimodal Structural Cues": {
+      abs: `Edge-based representations are fundamental cues for visual understanding, a principle rooted in early vision research and still central today. We extend this principle to vision-language alignment, showing that isolating and aligning structural cues across modalities can greatly benefit fine-tuning on long, detail-rich captions, with a specific focus on improving cross modal retrieval. We introduce StruXLIP, a fine-tuning alignment paradigm that extracts edge maps (e.g., Canny), treating them as proxies for the visual structure of an image, and filters the corresponding captions to emphasize structural cues, making them “structure-centric”. Fine-tuning augments the standard alignment loss with three structure-centric losses: (i) aligning edge maps with structural text, (ii) matching local edge regions to textual chunks, and (iii) connecting edge maps to color images to prevent representation drift. From a theoretical standpoint, while standard CLIP maximizes the mutual information between visual and textual embeddings, StruXLIP additionally maximizes the mutual information between multimodal structural representations. This auxiliary optimization is intrinsically harder, guiding the model toward more robust and semantically stable minima, enhancing vision-language alignment. Beyond outperforming current competitors on cross-modal retrieval on both general and specialized domains, our method serves as a general boosting recipe that can be integrated into future approaches in a plug-and-play manner.`,
+      bib: `@inproceedings{ruan2026StruXLIP,
+  title     = {StruXLIP: Enhancing Vision-Language Models
+               with Multimodal Structural Cues},
+  author    = {Ruan, Zanxi and Kong, Qiuyu and Gao, Songqun
+               and Wang, Yiming and Cristani, Marco},
+  booktitle = {Proceedings of the IEEE/CVF Conference on
+               Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2026}
+}`
+    },
+        "Learning to Solve Orienteering Problem with Time Windows and Variable Profits": {
+      abs: `The orienteering problem with time windows and variable profits (OPTWVP) is common in many real-world applications and involves continuous time variables. Current approaches fail to develop an efficient solver for this orienteering problem variant with discrete and continuous variables. In this paper, we propose a learning-based two-stage DEcoupled discrete-Continuous optimization with Service-time-guided Trajectory (DeCoST), which aims to effectively decouple the discrete and continuous decision variables in the OPTWVP problem, while enabling efficient and learnable coordination between them. In the first stage, a parallel decoding structure is employed to predict the path and the initial service time allocation. The second stage optimizes the service times through a linear programming (LP) formulation and provides a long-horizon learning of structure estimation. We rigorously prove the global optimality of the second-stage solution. Experiments on OPTWVP instances demonstrate that DeCoST outperforms both state-of-the-art constructive solvers and the latest meta-heuristic algorithms in terms of solution quality and computational efficiency, achieving up to 6.6x inference speedup on instances with fewer than 500 nodes. Moreover, the proposed framework is compatible with various constructive solvers and consistently enhances the solution quality for OPTWVP.`,
+      bib: `@inproceedings{gao2026decost,
+              title={Learning to Solve Orienteering Problem with Time Windows and Variable Profits},
+              author={Songqun Gao and Zanxi Ruan and Patrick Floor and Marco Roveri and Luigi Palopoli and Daniele Fontanelli},
+              booktitle={The Fourteenth International Conference on Learning Representations},
+              year={2026},
+            }`
+    },
+    "LOTS of Fashion! Multi-conditioning for Image Generation via Sketch-Text Pairing": {
+      abs: `Fashion design is a complex creative process that blends visual and textual expressions. Designers convey ideas through sketches, which define spatial structure and design elements, and textual descriptions, capturing material, texture, and stylistic details. In this paper, we present LOcalized Text and Sketch for fashion image generation (LOTS), an approach for compositional sketch-text based generation of complete fashion outlooks. LOTS leverages a global description with paired localized sketch + text information for conditioning and introduces a novel step-based merging strategy for diffusion adaptation. First, a Modularized Pair-Centric representation encodes sketches and text into a shared latent space while preserving independent localized features; then, a Diffusion Pair Guidance phase integrates both local and global conditioning via attention-based guidance within the diffusion model's multi-step denoising process. To validate our method, we build on Fashionpedia to release Sketchy, the first fashion dataset where multiple text-sketch pairs are provided per image. Quantitative results show LOTS achieves state-of-the-art image generation performance on both global and localized metrics, while qualitative examples and a human evaluation study highlight its unprecedented level of design customization.`,
+      bib: `@inproceedings{girella2025lots,
+  title={LOTS of Fashion! multi-conditioning for image generation via sketch-text pairing},
+  author={Girella, Federico and Talon, Davide and Liu, Ziyue and Ruan, Zanxi and Wang, Yiming and Cristani, Marco},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={19711--19720},
+  year={2025}
+}`
+    },
+
+    "Few-shot Event-based Action Recognition": {
+      abs: `Despite the evident superiority of event cameras in practical vision applications (e.g., action recognition), owing to their distinctive sensing mechanism, existing event-based action recognition methods rely heavily on large-scale training data. However, the expensive cost of camera deployment and the requirement of data privacy protection make it challenging to collect substantial data in real-world scenarios. To address this limitation, we explore a novel yet practical task, Few-Shot Event-Based Action Recognition (FSEAR), which aims at leveraging a minimal number of intractable event action data for model training and accurately classifying unlabeled data into a specific category. Accordingly, we design a new framework for FSEAR, including a Noise-Aware Event Encoder (NAE) and a Distilled Prototypical Distance Fusion (DPDF). The former efficiently filters noise within the spatiotemporal domain while retaining vital information related to action timing. The latter conducts multi-scale measurements across geometric, directional, and distributional dimensions. These two modules benefit mutually and thus effectively exploit the potential characteristics of event data. Extensive experiments on four distinct event action recognition datasets have demonstrated the significant advantages of our model over other few-shot learning methods. Our code and models will be publicly released.`,
+      bib: `@article{ruan2025few,
+  title={Few-shot event-based action recognition},
+  author={Ruan, Zanxi and Pu, Nan and Chen, Jiangming and Gao, Songqun and Guo, Yanming and Kong, Qiuyu and Xie, Yuxiang and Wei, Yingmei},
+  journal={Neural Networks},
+  volume={191},
+  pages={107750},
+  year={2025},
+  publisher={Elsevier}
+}`
+    },
+
+    "Dual-branch Fusion with Style Modulation for Cross-domain Few-shot Semantic Segmentation": {
+      abs: `Cross-Domain Few-Shot Semantic Segmentation (CD-FSS) aims to achieve pixel-level segmentation of novel categories across various domains by transferring knowledge from the source domain leveraging limited samples. The main challenge in CD-FSS is bridging the inter-domain gap and addressing the scarcity of labeled samples in the target domain to enhance both generalization and discriminative abilities. Current methods usually resort to additional networks and complex strategy to embrace domain variability, which inevitably increases the training costs. This paper proposes a Dual-Branch Fusion with Style Modulation (DFSM) method to tackle this issues. We specifically deploy a parameter-free Grouped Style Modulation (GSM) layer that captures and adjusts a wide spectrum of potential feature distribution changes, thus improving the model's domain transferability. Additionally, to overcome data limitations and enhance adaptability in the target domain, we develope a Dual-Branch Fusion (DBF) strategy which achieves accurate pixel-level prediction results by combining predicted probability maps through weighted fusion, thereby enhancing the discriminative ability of the model. We evaluate the proposed method on multiple widely-used benchmark datasets, including FSS-1000, ISIC, Chest X-Ray, and Deepglobe, and demonstrate superior performance compared to state-of-the-art methods in CD-FSS tasks.`,
+      bib: `@inproceedings{kong2024dual,
+  title={Dual-branch fusion with style modulation for cross-domain few-shot semantic segmentation},
+  author={Kong, Qiuyu and Chen, Jiangming and Jiang, Jie and Ruan, Zanxi and Kang, Lai},
+  booktitle={Proceedings of the 32nd ACM International Conference on Multimedia},
+  pages={2166--2174},
+  year={2024}
+}`
+    },
+
+    "Hybrid Attentive Prototypical Network for Few-shot Action Recognition": {
+      abs: `Most previous few-shot action recognition works tend to process video temporal and spatial features separately, resulting in insufficient extraction of comprehensive features. In this paper, a novel hybrid attentive prototypical network (HAPN) framework for few-shot action recognition is proposed. Distinguished by its joint processing of temporal and spatial information, the HAPN framework strategically manipulates these dimensions from feature extraction to the attention module, consequently enhancing its ability to perform action recognition tasks. Our framework utilizes the R(2+1)D backbone network, coupling the extraction of integrated temporal and spatial features to ensure a comprehensive understanding of video content. Additionally, our framework introduces the novel Residual Tri-dimensional Attention (ResTriDA) mechanism, specifically designed to augment feature information across the temporal, spatial, and channel dimensions. ResTriDA dynamically enhances crucial aspects of video features by amplifying significant channel-wise features for action distinction, accentuating spatial details vital for capturing the essence of actions within frames, and emphasizing temporal dynamics to capture movement over time. We further propose a prototypical attentive matching module (PAM) built on the concept of metric learning to resolve the overfitting issue common in few-shot tasks. We evaluate our HAPN framework on three classical few-shot action recognition datasets: Kinetics-100, UCF101, and HMDB51. The results indicate that our framework significantly outperformed state-of-the-art methods. Notably, the 1-shot task, demonstrated an increase of 9.8% in accuracy on UCF101 and improvements of 3.9% on HMDB51 and 12.4% on Kinetics-100. These gains confirm the robustness and effectiveness of our approach in leveraging limited data for precise action recognition.`,
+      bib: `@article{ruan2024hybrid,
+  title={Hybrid attentive prototypical network for few-shot action recognition},
+  author={Ruan, Zanxi and Wei, Yingmei and Guo, Yanming and Xie, Yuxiang},
+  journal={Complex \& Intelligent Systems},
+  volume={10},
+  number={6},
+  pages={8249--8272},
+  year={2024},
+  publisher={Springer}
+}`
+    },
+
+    "AIDA: AI-Driven Intelligent Diagnostics and Analytics": {
+      abs: `AIDA presents an AI-driven framework for intelligent diagnostics and analytics, with applications in medical image analysis and clinical decision support.`,
+      bib: `@inproceedings{ruan2025aida,
+  title={AIDA: AI-Driven Intelligent Diagnostics and Analytics},
+  author={Ruan, Z. and Gobbo, S. and Cima, L. and Mondo, M. and Sharifi, S. and Munari, E. and Scarpa, A. and others},
+  booktitle={International Conference on Image Analysis and Processing (ICIAP)},
+  pages={126--137},
+  year={2025}
+}`
+    },
+
+
+
+  };
+
+  function normalizeTitle(title) {
+    return (title || "").replace(/\s+/g, " ").trim();
+  }
+
+  function getPaperTitle(card) {
+    const titleEl = card.querySelector('.pub-title') || card.querySelector('h3');
+    return normalizeTitle(titleEl ? titleEl.textContent : "");
+  }
+
+  function getOrCreateExpandBox(card) {
+    let box = card.querySelector('.pub-expand');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'pub-expand';
+      const btns = card.querySelector('.pub-btns');
+      if (btns) btns.insertAdjacentElement('afterend', box);
+      else card.appendChild(box);
+    }
+    return box;
+  }
+
+  function setActiveButtonState(card, mode, isOpen) {
+    const btns = card.querySelectorAll('.pub-btns a');
+    btns.forEach(a => {
+      const txt = (a.textContent || "").trim().toUpperCase();
+      if ((txt === "ABS" || txt === "BIB")) {
+        a.classList.remove('active');
+      }
+    });
+    if (isOpen) {
+      const target = Array.from(btns).find(a => (a.textContent || "").trim().toUpperCase() === mode);
+      if (target) target.classList.add('active');
+    }
+  }
+
+  function renderContent(mode, data, box) {
+    const label = mode === 'ABS' ? 'Abstract' : 'BibTeX';
+    const content = mode === 'ABS' ? (data?.abs || 'Abstract to be added.') : (data?.bib || '@article{todo,\n  title={To be added}\n}');
+    if (mode === 'ABS') {
+      box.innerHTML = `
+        <div class="expand-label">${label}</div>
+        <p>${content}</p>
+      `;
+    } else {
+      box.innerHTML = `
+        <div class="expand-label">${label}</div>
+        <pre>${content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+      `;
+    }
+  }
+
+  // 事件委托：不改你原来的按钮 HTML
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('.pub-btns a');
+    if (!link) return;
+
+    const label = normalizeTitle(link.textContent).toUpperCase();
+    if (label !== 'ABS' && label !== 'BIB') return; // 只拦截 ABS / BIB，其他按钮正常跳转
+
+    e.preventDefault();
+
+    const card = link.closest('.pub-item, .pub-card');
+    if (!card) return;
+
+    const title = getPaperTitle(card);
+    const data = paperData[title];
+    const box = getOrCreateExpandBox(card);
+
+    const currentMode = box.getAttribute('data-mode');
+    const isOpen = box.style.display === 'block';
+
+    // 同一个按钮再次点击 => 收起
+    if (isOpen && currentMode === label) {
+      box.style.display = 'none';
+      box.setAttribute('data-mode', '');
+      setActiveButtonState(card, label, false);
+      return;
+    }
+
+    renderContent(label, data, box);
+    box.style.display = 'block';
+    box.setAttribute('data-mode', label);
+    setActiveButtonState(card, label, true);
+  });
+})();
+</script>
+<script>
+// 图片放大功能
+const modal = document.getElementById("imageModal");
+const modalImg = document.getElementById("modalImg");
+
+document.querySelectorAll(".pub-thumb img").forEach(img => {
+  img.addEventListener("click", function () {
+    modal.style.display = "flex";
+    modalImg.src = this.src;
+  });
+});
+
+modal.addEventListener("click", function () {
+  modal.style.display = "none";
+});
+</script>
+</body>
+</html>
